@@ -1,0 +1,51 @@
+# Metadata about the package
+[package]
+name = "rss_hacker" 
+version = "0.1.0" 
+edition = "2021" 
+
+# Defines two binary targets for the package
+[[bin]]
+name = "simple_ssr_hydrate" # The name of the first binary target
+required-features = ["hydration"] # The required features for the target
+
+[[bin]]
+name = "simple_ssr_server" # The name of the second binary target
+required-features = ["ssr"] # The required features for the target
+
+# Dependencies of the package
+[dependencies]
+yew = "0.20.0" # The version of the Yew web framework
+reqwest = { version = "0.11.8", features = ["json"] } # The version of the Reqwest HTTP client library with JSON feature
+feed-rs = "1.3.0" # The version of the Feed-rs library
+futures = "0.3" # The version of the Futures library
+bytes = "1.0" # The version of the Bytes library
+quickxml_to_serde = "0.5.0" # The version of the QuickXML to Serde library
+select = "0.6.0" # The version of the Select library
+
+# Dependencies only used for the wasm32 target
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen-futures = "0.4" # The version of the Wasm-bindgen Futures library
+wasm-logger = "0.2" # The version of the Wasm-logger library
+log = "0.4" # The version of the Log library
+
+# Dependencies only used for non-wasm32 targets
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tokio = { version = "1.15.0", features = ["full"] } # The version of the Tokio library with full feature
+warp = "0.3" # The version of the Warp library
+clap = { version = "3.2.23", features = ["derive"] } # The version of the Clap library with derive feature
+
+# Optional features of the package
+[features]
+hydration = ["yew/hydration"] # The hydration feature of Yew web framework
+ssr = ["yew/ssr"] # The server-side rendering feature of Yew web framework
+
+# The version and feature of the GetRandom library
+[dependencies.getrandom]
+version = "0.2.2"
+features = ["js"]
+
+# The version and feature of the RSS library
+[dependencies.rss]
+version = "2.0.2"
+features = ["serde"]
