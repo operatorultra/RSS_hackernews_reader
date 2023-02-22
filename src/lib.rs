@@ -75,7 +75,6 @@ fn Content() -> HtmlResult {
     let result = use_prepared_state!(
         async move |_| -> Channel {
             let channel = fetch_hacker_news_rss().await;
-
             channel.unwrap()
         },
         ()
@@ -99,44 +98,43 @@ fn Content() -> HtmlResult {
     items.reverse();
 
     Ok(html! {
-        <>
-
-            <div class="text-center">
-            <h1 class="text-2xl p-10">
+      <>
+        <div class="text-center">
+          <h1 class="text-2xl p-10">
             {&result.title}
-            </h1>
-            </div>
+          </h1>
+        </div>
 
-            <div class="container mx-auto">
-                <ul>
-                    {items.iter().map(|item| {
-                        let description = parse_description(&item.description.as_ref().unwrap().as_str());
-                        html! {
-
-                            <li class="p-5 drop-shadow-md md:drop-shadow-xl bg-slate-100 m-3 rounded-lg">
-                            <div class="border-neutral-400">
-                            <a href={description.article_url.to_owned()} target="_blank">
-                            <h2 class="text-center text-xl hover:font-bold ease-in duration-200">{"☞ "}{ item.title.to_owned() }</h2>
-                            </a>
-                            <ul>
-                            <li>
-                            </li>
-                            <li>{ format!("Points: {}", description.points) }</li>
-                            <li class="py-2">{ description.num_comments }</li>
-                            <a class="link_to_article " href={ description.comments_url.to_owned() } target="_blank">
-                            <li class="cursor-pointer py-2 bg-sky-500 hover:bg-emerald-400/50 rounded-lg  text-slate-50 text-center ease-in duration-200">
-                            { "Check out the comments" }
-                            </li>
-                            </a>
-                            </ul>
-                            </div>
-                            </li>
-
-                        }
-                    }).collect::<Html>()}
-                </ul>
-            </div>
-        </>
+        <div class="container mx-auto">
+          <ul>
+            {items.iter().map(|item| {
+              let description = parse_description(&item.description.as_ref().unwrap().as_str());
+              html! {
+                <li class="p-5 drop-shadow-md md:drop-shadow-xl bg-slate-100 m-3 rounded-lg">
+                  <div class="border-neutral-400">
+                    <a href={description.article_url.to_owned()} target="_blank">
+                      <h2 class="text-center text-xl hover:font-bold ease-in duration-200">
+                        {"☞ "}{ item.title.to_owned() }
+                      </h2>
+                    </a>
+                    <ul>
+                      <li>
+                      </li>
+                      <li>{ format!("Points: {}", description.points) }</li>
+                      <li class="py-2">{ description.num_comments }</li>
+                      <a class="link_to_article " href={ description.comments_url.to_owned() } target="_blank">
+                        <li class="cursor-pointer py-2 bg-sky-500 hover:bg-emerald-400/50 rounded-lg text-slate-50 text-center ease-in duration-200">
+                          { "Check out the comments" }
+                        </li>
+                      </a>
+                    </ul>
+                  </div>
+                </li>
+              }
+            }).collect::<Html>()}
+          </ul>
+        </div>
+      </>
     })
 }
 
@@ -145,8 +143,8 @@ pub fn App() -> Html {
     let fallback = html! {<div>{"Loading feed..."}</div>};
 
     html! {
-        <Suspense {fallback}>
-            <Content />
-        </Suspense>
+      <Suspense {fallback}>
+        <Content />
+      </Suspense>
     }
 }
