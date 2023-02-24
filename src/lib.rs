@@ -10,7 +10,7 @@ async fn fetch_hacker_news_rss() -> Result<Channel, Box<dyn Error>> {
     // https://hnrss.github.io/#firehose-feeds
     // https://hnrss.org/jobs
 
-    let content = reqwest::get("https://hnrss.org/newest?q=ai&points=100&count=25")
+    let content = reqwest::get("https://hnrss.org/newest?q=ai&points=1&count=25")
         .await?
         .bytes()
         .await?;
@@ -25,10 +25,25 @@ struct Description {
     comments_url: String,
     points: String,
     num_comments: String,
+    body_text: String,
 }
 
 fn parse_description(description: &str) -> Description {
     let document = select::document::Document::from(description);
+
+    let body_text = if let Some(body) = document.find(Name("p")).nth(0) {
+        if let Some(last_text) = body.children().filter_map(|n| n.as_text()).last() {
+            if last_text == "Article URL: " {
+                "".to_owned()
+            } else {
+                last_text.to_string()
+            }
+        } else {
+            "".to_owned()
+        }
+    } else {
+        "".to_owned()
+    };
 
     let article_url = if let Some(a) = document.find(Name("a")).next() {
         a.attr("href").unwrap().to_string()
@@ -67,6 +82,7 @@ fn parse_description(description: &str) -> Description {
         comments_url,
         points,
         num_comments,
+        body_text,
     }
 }
 
@@ -97,11 +113,13 @@ fn Content() -> HtmlResult {
 
     items.reverse();
 
+    println!("{:#?}", &result.items);
+
     Ok(html! {
       <>
         <div class="text-center">
           <h1 class="text-2xl p-10">
-            {&result.title}
+            {&result.description}
           </h1>
         </div>
 
@@ -110,7 +128,7 @@ fn Content() -> HtmlResult {
             {items.iter().map(|item| {
               let description = parse_description(&item.description.as_ref().unwrap().as_str());
               html! {
-                <li class="p-5 drop-shadow-md md:drop-shadow-xl bg-slate-100 m-3 rounded-lg">
+                <li class="m-10 p-5 drop-shadow-md md:drop-shadow-xl bg-slate-100 m-3 rounded-lg">
                   <div class="border-neutral-400">
                     <a href={description.article_url.to_owned()} target="_blank">
                       <h2 class="text-center text-xl hover:font-bold ease-in duration-200">
@@ -128,6 +146,7 @@ fn Content() -> HtmlResult {
                         </li>
                       </a>
                     </ul>
+                    <p> {"Published on: "}{&item.pub_date.as_ref().unwrap()}</p>
                   </div>
                 </li>
               }
