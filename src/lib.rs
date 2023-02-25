@@ -10,7 +10,7 @@ async fn fetch_hacker_news_rss() -> Result<Channel, Box<dyn Error>> {
     // https://hnrss.github.io/#firehose-feeds
     // https://hnrss.org/jobs
 
-    let content = reqwest::get("https://hnrss.org/newest?q=ai&points=1&count=25")
+    let content = reqwest::get("https://hnrss.org/newest?q=ai&points=50&count=250")
         .await?
         .bytes()
         .await?;
@@ -113,7 +113,7 @@ fn Content() -> HtmlResult {
 
     items.reverse();
 
-    println!("{:#?}", &result.items);
+    // println!("{:#?}", &result.items);
 
     Ok(html! {
       <>
